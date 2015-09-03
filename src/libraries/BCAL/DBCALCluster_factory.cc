@@ -163,8 +163,8 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
   
 #endif // BCAL_CLUSTER_DIAGNOSTIC
   
-  /*
-   
+  
+  /* 
     MRS (6-Apr-11):  needs work!  most single end hits are actually SiPM
     dark noise -- this causes shower to accumulate tons of extra energy.
     This is likely due to a poorly written overlap routine.  The routine
@@ -175,7 +175,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     the code in the newly-created DBCALPoint_factory.cc. If the
     single-ended hit code ends up in use again it might be worth
     considering if it could or should be moved into that file.
-
+*/
 
   vector< const DBCALHit* > hits;
   loop->Get(hits);
@@ -193,7 +193,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     // exceed the threshold -- we want to suppress these hits so we know
     // exactly how many "real" hits we have in a cell
     
-    if( hit.E < 0.1*k_MeV ) continue;
+   // if( hit.E < 0.1*k_MeV ) continue;
     
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
@@ -218,11 +218,11 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
       
       const DBCALHit* hit = mapItr->second[0];
       
-      for( vector< DBCALCluster >::iterator clust = clusters.begin();
+      for( vector< DBCALCluster* >::iterator clust = clusters.begin();
           clust != clusters.end();
           ++clust ){
                 
-        if( overlap( *clust, hit ) ){
+        if( overlap( **clust, hit ) ){
 
           int cellId = 
              DBCALGeometry::cellId( hit->module, hit->layer, hit->sector );
@@ -230,7 +230,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
           
           // given the location of the cluster, we need the best guess
           // for z with respect to target at this radius
-          float z = r / tan( clust->theta() );
+          float z = r / tan( (**clust).theta() );
           
           // make a point there
           DBCALPoint* pt = new DBCALPoint( *hit, z, m_z_target_center );
@@ -243,13 +243,13 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
           // and we are really after lost energy not enhanced position
           // resolution
           
-          clust->addPoint( pt );
+         (**clust).addPoint( pt );
           m_bcalPoints.push_back( pt );
         }
       }
     }
   }
-*/
+
   
   // load our vector of clusters into the factory member data
   for( vector<DBCALCluster*>::iterator clust = clusters.begin();
@@ -302,7 +302,6 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points ) const {
         pt != points.end();
         ++pt ){
        
-	if((**pt).E()<0.0) break;
       // first see if point should be added to an existing
       // cluster
       
