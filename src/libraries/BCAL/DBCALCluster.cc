@@ -12,7 +12,7 @@
 #include <math.h>
 
 DBCALCluster::DBCALCluster( const DBCALPoint* point, double z_target_center )
-  : m_points ( 0 ), m_z_target_center(z_target_center) {
+  : m_points ( 0 ),  hit_E_attenuated_sum(0.0),  m_z_target_center(z_target_center) {
 
   m_points.push_back( point );
   AddAssociatedObject( point );
@@ -48,6 +48,17 @@ DBCALCluster::addPoint( const DBCALPoint* point ){
   AddAssociatedObject( point );
   
   makeFromPoints();
+}
+
+void
+DBCALCluster::addHit( const DBCALUnifiedHit* hit, double hit_E_attenuated ){
+ 
+  hit_E_attenuated_sum += hit_E_attenuated; // add the energy of all hits in a cluster
+  m_hits.push_back( hit );
+  m_hits_E_attenuated.push_back(hit_E_attenuated);
+  AddAssociatedObject( hit );
+  makeFromPoints();  // call makeFromPoints so we can include hit energy in the clusterization, but don't use any of the hit positions or times to include in the cluster averaging.
+
 }
 
 void
@@ -141,8 +152,9 @@ DBCALCluster::makeFromPoints(){
    
     double E = (**pt).E();
 
-    m_E += E;
-
+    E_points += E;
+    m_E = E_points + hit_E_attenuated_sum;  // add the energy sum from points to the energy sum from single ended hits
+  
     double wt1, wt2;
     if ((**pt).layer() != 4 || average_layer4) {
       wt1 = E;
@@ -169,7 +181,7 @@ DBCALCluster::makeFromPoints(){
     m_rho += (**pt).rho() * wt2;
     m_sig_rho += (**pt).rho() * (**pt).rho() * wt2;
   }
-  
+	
   // now adjust the standard deviations and averages
   // the variance of the mean of a weighted distribution is s^2/n_eff, where s^2 is the variance of the sample and n_eff is as calculated below
   
@@ -300,7 +312,7 @@ void
 DBCALCluster::clear(){
  
   m_E = 0;
-  
+  E_points = 0; 
   m_t = 0;
   m_sig_t = 0;
   

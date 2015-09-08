@@ -124,7 +124,7 @@ JEventSource_EVIO::JEventSource_EVIO(const char* source_name):JEventSource(sourc
 	ENABLE_DISENTANGLING = true;
 	F250_IGNORE_PULSETIME = false;
 	F125_IGNORE_PULSETIME = false;
-	F250_THRESHOLD = 120;
+	F250_THRESHOLD = 105;
 	F125_THRESHOLD = 80;
 	F250_NSA = 50;
 	F250_NSB = 5;
@@ -1993,6 +1993,7 @@ void JEventSource_EVIO::EmulateDf125PulseTime(vector<JObject*> &wrd_objs, vector
 				for (uint32_t c_samp=first_sample_over_threshold; c_samp<Nsamples_all; c_samp++) {
 					if (samplesvector[c_samp] > VPEAK) {
 						pulse_peak = VPEAK = samplesvector[c_samp];
+						//cout << " pulse peak = " << pulse_peak << endl;
 					} else {
 					  // we found the downturn
 					  break;
