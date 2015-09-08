@@ -124,7 +124,7 @@ JEventSource_EVIO::JEventSource_EVIO(const char* source_name):JEventSource(sourc
 	ENABLE_DISENTANGLING = true;
 	F250_IGNORE_PULSETIME = false;
 	F125_IGNORE_PULSETIME = false;
-	F250_THRESHOLD = 105;
+	F250_THRESHOLD = 120;
 	F125_THRESHOLD = 80;
 	F250_NSA = 50;
 	F250_NSB = 5;

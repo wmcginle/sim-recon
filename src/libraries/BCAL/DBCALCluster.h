@@ -27,7 +27,6 @@ public:
   
   DBCALCluster(double z_target_center);
   DBCALCluster(const DBCALPoint* point, double z_target_center);
-  DBCALCluster(const DBCALUnifiedHit* hit, double z_target_center);
 
   vector< const DBCALPoint* > points() const { return m_points; }
   vector< const DBCALUnifiedHit* > hits() const { return m_hits; }  
@@ -69,15 +68,14 @@ public:
 private:
   
   void makeFromPoints();
-  void makeFromHits();
   void clear();
   
   vector< const DBCALPoint* > m_points;
   vector< const DBCALUnifiedHit* > m_hits;
   vector< double > m_hits_E_attenuated;
-  float hit_E_attenuated_sum;
+  float m_hit_E_attenuated_sum;
   
-  float E_points;
+  float m_E_points;
   float m_E;
   
   float m_t;

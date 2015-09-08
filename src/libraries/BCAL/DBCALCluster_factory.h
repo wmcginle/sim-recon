@@ -39,7 +39,6 @@ private:
   // these routines combine points and clusters together
 
   vector<DBCALCluster*> clusterize( vector< const DBCALPoint* > points, vector< const DBCALUnifiedHit* > hits ) const;
-//  vector<DBCALCluster*> clusterize( vector< const DBCALUnifiedHit* > hits ) const;
   void merge( vector<DBCALCluster*>& clusters ) const;
   
   // these are the routines used for testing whether things should be
@@ -59,7 +58,7 @@ private:
   float m_timeCut;
   double time_corr;
   double m_z_target_center;
-  double hit_E_attenuated;
+  double m_hit_E_attenuated;
   vector<double> effective_velocities;
   vector< vector<double > > attenuation_parameters;
 

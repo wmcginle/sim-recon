@@ -113,7 +113,7 @@ jerror_t DBCALCluster_factory::brun(JEventLoop *loop, int runnumber) {
 jerror_t
 DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
 
-  hit_E_attenuated=0.0;
+  m_hit_E_attenuated=0.0;
   clearPoints();
   vector< const DBCALPoint* > twoEndPoint;
   loop->Get(twoEndPoint);
@@ -147,7 +147,6 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
   // now try to clusterize the points
   
   vector<DBCALCluster*> clusters = clusterize( twoEndPoint, oneEndHit );
-  //vector<DBCALCluster*> clusters = clusterize( oneEndHit );
 #ifdef BCAL_CLUSTER_DIAGNOSTIC
   
   m_nCl = clusters.size();
@@ -182,16 +181,14 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     the code in the newly-created DBCALPoint_factory.cc. If the
     single-ended hit code ends up in use again it might be worth
     considering if it could or should be moved into that file.
+
+    WM (5-Sept-115) incorporate the single-ended hit energies into the cluster 
+    energy without the single ended hits contributing to the cluster centroid 
+    position or time.
 */
 
   vector< const DBCALUnifiedHit* > hits;
   loop->Get(hits);
-
-  //vector<double> effective_velocities;
-  //loop->GetCalib("/BCAL/effective_velocities", effective_velocities);
-
-  //vector< vector<double > > attenuation_parameters;
-  //loop->GetCalib("/BCAL/attenuation_parameters",attenuation_parameters);
 
   // first arrange the list of hits so they are grouped by cell
   map< int, vector< const DBCALUnifiedHit* > > cellHitMap;
@@ -205,7 +202,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     // exceed the threshold -- we want to suppress these hits so we know
     // exactly how many "real" hits we have in a cell
     
- // if( hit.E < 0.1*k_MeV ) continue;
+    if( hit.E < 0.1*k_MeV ) continue;
  
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
@@ -248,9 +245,9 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
 	 
 	  time_corr = ( (hit->end==0) ? hit->t - d/effective_velocities[channel_calib] : hit->t - d/effective_velocities[channel_calib] );  // hit time corrected to the interaction point in the bar.        
 	  float time_diff = TMath::Abs((**clust).t() - time_corr);
-	  if(time_diff > 25.0) continue; // a very loose cut on the time difference between a cluster and a hit
+	  if(time_diff > 925.0) continue; // a very loose cut on the time difference between a cluster and a hit
 	  double lambda = attenuation_parameters[channel_calib][0];     
-          hit_E_attenuated = hit->E/exp(-d/lambda);   
+          m_hit_E_attenuated = hit->E/exp(-d/lambda);  // hit energy attenuated wrt the cluster z position 
 
           DBCALUnifiedHit* ht = new DBCALUnifiedHit( *hit );
           
@@ -258,7 +255,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
           // we want to add the energy of the single-ended hits to the cluster energy, so we use the z position of the cluster as the z position of the hit in order to apply an attenuation factor. We don't want to use the hit position or time later when calculating the cluster centroid and time. We keep the hits and points separate to make that distinction clear.
          
           
-          (**clust).addHit( ht, hit_E_attenuated );
+          (**clust).addHit( ht, m_hit_E_attenuated );
           m_bcalHits.push_back( ht  );
         }
       }
@@ -370,7 +367,7 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points , vector< c
 
         if( overlap( **clust, *ht ) ){
 
-	   (**clust).addHit( *ht, hit_E_attenuated );
+	   (**clust).addHit( *ht, m_hit_E_attenuated );
  	   hits.erase( ht );
 	   usedHit = true;
 	}
