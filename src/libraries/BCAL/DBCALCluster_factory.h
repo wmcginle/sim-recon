@@ -60,6 +60,8 @@ private:
   double time_corr;
   double m_z_target_center;
   double hit_E_attenuated;
+  vector<double> effective_velocities;
+  vector< vector<double > > attenuation_parameters;
 
   // we may consider a separate factory to provide the BCAL points at
   // a future stage; for now have this factory own and maintain them

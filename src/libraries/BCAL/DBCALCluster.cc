@@ -201,8 +201,8 @@ DBCALCluster::makeFromPoints(){
   m_sig_theta /= sqrt(n_eff2);*/
 
   // The method below for determining sig_theta works better than the one
-  // above. sigma_z is determined using errors when reconstructing MC data.
-  double sigma_z = sqrt(1.394*1.394/m_E + 0.859*0.859);
+  // above. parameters of sigma_z are determined using errors when reconstructing MC data.
+  double sigma_z = sqrt(1.394*1.394/E_points + 0.859*0.859);
   m_sig_theta = sigma_z*sin(m_theta)*sin(m_theta)/DBCALGeometry::BCALINNERRAD;
   
   m_phi = atan2(sum_sin_phi,sum_cos_phi);

@@ -103,6 +103,10 @@ jerror_t DBCALCluster_factory::brun(JEventLoop *loop, int runnumber) {
   DGeometry* geom = app->GetDGeometry(runnumber);
   geom->GetTargetZ(m_z_target_center);
 
+  loop->GetCalib("/BCAL/effective_velocities", effective_velocities);
+
+  loop->GetCalib("/BCAL/attenuation_parameters",attenuation_parameters);
+
   return NOERROR;
 }
 
@@ -183,11 +187,11 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
   vector< const DBCALUnifiedHit* > hits;
   loop->Get(hits);
 
-  vector<double> effective_velocities;
-  loop->GetCalib("/BCAL/effective_velocities", effective_velocities);
+  //vector<double> effective_velocities;
+  //loop->GetCalib("/BCAL/effective_velocities", effective_velocities);
 
-  vector< vector<double > > attenuation_parameters;
-  loop->GetCalib("/BCAL/attenuation_parameters",attenuation_parameters);
+  //vector< vector<double > > attenuation_parameters;
+  //loop->GetCalib("/BCAL/attenuation_parameters",attenuation_parameters);
 
   // first arrange the list of hits so they are grouped by cell
   map< int, vector< const DBCALUnifiedHit* > > cellHitMap;
@@ -246,11 +250,10 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
 	  float time_diff = TMath::Abs((**clust).t() - time_corr);
 	  if(time_diff > 25.0) continue; // a very loose cut on the time difference between a cluster and a hit
 	  double lambda = attenuation_parameters[channel_calib][0];     
-	  hit_E_attenuated = hit->E/exp(-d/lambda);   
+          hit_E_attenuated = hit->E/exp(-d/lambda);   
 
           DBCALUnifiedHit* ht = new DBCALUnifiedHit( *hit );
           
-          // add it to the cluster and keep track of it for later cleanup
           
           // we want to add the energy of the single-ended hits to the cluster energy, so we use the z position of the cluster as the z position of the hit in order to apply an attenuation factor. We don't want to use the hit position or time later when calculating the cluster centroid and time. We keep the hits and points separate to make that distinction clear.
          
@@ -261,7 +264,6 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
       }
     }
   }
-
   
   // load our vector of clusters into the factory member data
   for( vector<DBCALCluster*>::iterator clust = clusters.begin();
