@@ -59,7 +59,7 @@ public:
   
   // these functions modify the cluster
   void addPoint( const DBCALPoint* point );
-  void addHit ( const DBCALUnifiedHit* hit, double hit_E_attenuated );
+  void addHit ( const DBCALUnifiedHit* hit, double hit_E_unattenuated );
   void mergeClust( const DBCALCluster& clust );
   
   // this prints out info
@@ -72,8 +72,8 @@ private:
   
   vector< const DBCALPoint* > m_points;
   vector< const DBCALUnifiedHit* > m_hits;
-  vector< double > m_hits_E_attenuated;
-  float m_hit_E_attenuated_sum;
+  vector< double > m_hits_E_unattenuated;
+  float m_hit_E_unattenuated_sum;
   
   float m_E_points;
   float m_E;

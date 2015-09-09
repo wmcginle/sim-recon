@@ -12,7 +12,7 @@
 #include <math.h>
 
 DBCALCluster::DBCALCluster( const DBCALPoint* point, double z_target_center )
-  : m_points ( 0 ),  m_hit_E_attenuated_sum(0.0),  m_z_target_center(z_target_center) {
+  : m_points ( 0 ),  m_hit_E_unattenuated_sum(0.0),  m_z_target_center(z_target_center) {
 
   m_points.push_back( point );
   AddAssociatedObject( point );
@@ -51,12 +51,14 @@ DBCALCluster::addPoint( const DBCALPoint* point ){
 }
 
 void
-DBCALCluster::addHit( const DBCALUnifiedHit* hit, double m_hit_E_attenuated ){
+DBCALCluster::addHit( const DBCALUnifiedHit* hit, double m_hit_E_unattenuated ){
  
-  m_hit_E_attenuated_sum += m_hit_E_attenuated; // add the energy of all hits in a cluster
+  m_hit_E_unattenuated_sum += m_hit_E_unattenuated; // add the energy of all hits in a cluster
   m_hits.push_back( hit );
-  m_hits_E_attenuated.push_back(m_hit_E_attenuated);
+  m_hits_E_unattenuated.push_back(m_hit_E_unattenuated);
+  
   AddAssociatedObject( hit );
+  
   makeFromPoints();  // call makeFromPoints so we can include hit energy in the clusterization, but don't use any of the hit positions or times to include in the cluster averaging.
 
 }
@@ -153,7 +155,7 @@ DBCALCluster::makeFromPoints(){
     double E = (**pt).E();
 
     m_E_points += E;
-    m_E = m_E_points + m_hit_E_attenuated_sum;  // add the energy sum from points to the energy sum from single ended hits
+    m_E = m_E_points + m_hit_E_unattenuated_sum;  // add the energy sum from points to the energy sum from single ended hits
   
     double wt1, wt2;
     if ((**pt).layer() != 4 || average_layer4) {
