@@ -55,8 +55,8 @@ private:
   
   float m_mergeSig;
   float m_moliereRadius;
-  float m_timeCut;
   float m_clust_hit_timecut;
+  float m_timeCut;
   double m_z_target_center;
   vector<double> effective_velocities;
   vector< vector<double > > attenuation_parameters;

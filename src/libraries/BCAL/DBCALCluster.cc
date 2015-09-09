@@ -51,14 +51,14 @@ DBCALCluster::addPoint( const DBCALPoint* point ){
 }
 
 void
-DBCALCluster::addHit( const DBCALUnifiedHit* hit, double m_hit_E_unattenuated ){
+DBCALCluster::addHit( const DBCALUnifiedHit* hit, double hit_E_unattenuated ){
  
-  m_hit_E_unattenuated_sum += m_hit_E_unattenuated; // add the energy of all hits in a cluster
-  m_hits.push_back( hit );
-  m_hits_E_unattenuated.push_back(m_hit_E_unattenuated);
+  m_hit_E_unattenuated_sum += hit_E_unattenuated; // add the energy of all hits in a cluster
+  m_hits_E_unattenuated.push_back(hit_E_unattenuated);
   
   AddAssociatedObject( hit );
-  
+  m_hits.push_back( hit );
+ 
   makeFromPoints();  // call makeFromPoints so we can include hit energy in the clusterization, but don't use any of the hit positions or times to include in the cluster averaging.
 
 }
@@ -85,7 +85,17 @@ DBCALCluster::mergeClust( const DBCALCluster& clust ){
     m_points.push_back( *pt );
     AddAssociatedObject( *pt );
   }
-  
+ 
+  vector< const DBCALUnifiedHit* > otherHits = clust.hits();
+
+  for( vector< const DBCALUnifiedHit* >::const_iterator ht = otherHits.begin();
+      ht != otherHits.end();
+      ++ht ){
+
+    m_hits.push_back( *ht ); 
+    AddAssociatedObject( *ht );
+  } 
+       
   makeFromPoints();
 }
 

@@ -31,7 +31,7 @@ bool ClusterSort( const DBCALCluster* c1, const DBCALCluster* c2 ){
 DBCALCluster_factory::DBCALCluster_factory() : 
 m_mergeSig( 5 ), 
 m_moliereRadius( 3.7*k_cm ),
-//m_clust_hit_timecut ( 20.0 ),
+m_clust_hit_timecut ( 30.0*k_nsec ),
 m_timeCut( 8.0*k_nsec ){
 }
 
@@ -185,7 +185,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     // exceed the threshold -- we want to suppress these hits so we know
     // exactly how many "real" hits we have in a cell
     
-    if( hit.E < 0.1*k_MeV ) continue;
+    // if( hit.E < 0.1*k_MeV ) continue;  // shouldn't be a problem with new bcal mcsmearing
  
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
@@ -531,7 +531,7 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   double time_corr = ( (hit->end==0) ? hit->t - d/effective_velocities[channel_calib] : hit->t - d/effective_velocities[channel_calib] );  // hit time corrected to the interaction point in the bar.        
   float time_diff = TMath::Abs(clust.t() - time_corr);
   
-  return( sigPhi < m_mergeSig && time_diff < 20 );
+  return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut );
 }
 
 void
