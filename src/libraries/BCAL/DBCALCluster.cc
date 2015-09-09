@@ -54,10 +54,9 @@ void
 DBCALCluster::addHit( const DBCALUnifiedHit* hit, double hit_E_unattenuated ){
  
   m_hit_E_unattenuated_sum += hit_E_unattenuated; // add the energy of all hits in a cluster
-  m_hits_E_unattenuated.push_back(hit_E_unattenuated);
+  m_single_ended_hits.push_back(make_pair(hit,hit_E_unattenuated));
   
   AddAssociatedObject( hit );
-  m_hits.push_back( hit );
  
   makeFromPoints();  // call makeFromPoints so we can include hit energy in the clusterization, but don't use any of the hit positions or times to include in the cluster averaging.
 
@@ -84,6 +83,17 @@ DBCALCluster::mergeClust( const DBCALCluster& clust ){
     
     m_points.push_back( *pt );
     AddAssociatedObject( *pt );
+  }
+
+  vector<pair<const DBCALUnifiedHit*,double> > otherHits = clust.hits();
+
+  for( vector<pair<const DBCALUnifiedHit*,double> >::const_iterator hit = otherHits.begin();
+      hit != otherHits.end();
+      ++hit ){
+
+    m_hit_E_unattenuated_sum += hit->second; //add the unattenuated energy
+    m_single_ended_hits.push_back( *hit );
+    AddAssociatedObject( hit->first );
   }
  
   makeFromPoints();
@@ -119,12 +129,12 @@ DBCALCluster::makeFromPoints(){
   //of TDC readout so we don't gain much by including them.
   //3) Contamination by noise. (Noise is greatest in the 4th layer)
   //These outer layer hits will of course still contribute to the energy sum.
+  //It can happen that a cluster is made up entirely of fourth layer hits.
+  //In this case, we must use all hits in the average.
 
   //Add single-ended hit energies to the cluster energy, but don't use the single-ended hits 
   //to calculate the cluster centroid or time.
 
-  //It can happen that a cluster is made up entirely of fourth layer hits.
-  //In this case, we must use all hits in the average.
   int n = m_points.size();
   int n4 = 0; //number of 4th layer points in the cluster
   for( vector< const DBCALPoint* >::const_iterator pt = m_points.begin();

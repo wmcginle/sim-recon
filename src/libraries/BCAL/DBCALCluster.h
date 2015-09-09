@@ -29,7 +29,10 @@ public:
   DBCALCluster(const DBCALPoint* point, double z_target_center);
 
   vector< const DBCALPoint* > points() const { return m_points; }
-  vector< const DBCALUnifiedHit* > hits() const { return m_hits; }  
+  // Returns a vector of the single-ended hits used in the cluster.
+  // This returns a pair because we need to store the attenuated-corrected energy
+  // and the DBCALUnifiedHit cannot hold this information.
+  vector< pair<const DBCALUnifiedHit*,double> > hits() const { return m_single_ended_hits; }
 
   int nCells() const { return m_points.size(); }
   
@@ -71,10 +74,9 @@ private:
   void clear();
   
   vector< const DBCALPoint* > m_points;
-  vector< const DBCALUnifiedHit* > m_hits;
-  vector< double > m_hits_E_unattenuated;
-  float m_hit_E_unattenuated_sum;
-  
+  vector< pair<const DBCALUnifiedHit*,double> > m_single_ended_hits; //Store single-ended hits together with their unattenuated energies
+
+  float m_hit_E_unattenuated_sum; //attenuation-corrected sum of energies from single-ended hits
   float m_E_points;
   float m_E;
   
