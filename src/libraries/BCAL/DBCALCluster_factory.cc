@@ -113,7 +113,6 @@ jerror_t DBCALCluster_factory::brun(JEventLoop *loop, int runnumber) {
 jerror_t
 DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
 
-  clearPoints();
   vector< const DBCALPoint* > twoEndPoint;
   loop->Get(twoEndPoint);
 
@@ -524,17 +523,3 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   
   return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut );
 }
-
-void
-DBCALCluster_factory::clearPoints() {
- 
-  for( vector< DBCALPoint* >::iterator pt = m_bcalPoints.begin();
-      pt != m_bcalPoints.end();
-      ++pt ){
-    
-    delete (*pt);
-  }
-  
-  m_bcalPoints.clear();
-}
-

@@ -61,11 +61,6 @@ private:
   vector<double> effective_velocities;
   vector< vector<double > > attenuation_parameters;
 
-  // we may consider a separate factory to provide the BCAL points at
-  // a future stage; for now have this factory own and maintain them
-  
-  vector< DBCALPoint* > m_bcalPoints;
-    
 #ifdef BCAL_CLUSTER_DIAGNOSTIC
   
 #define MAX_POINT 1000
