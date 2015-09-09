@@ -86,16 +86,6 @@ DBCALCluster::mergeClust( const DBCALCluster& clust ){
     AddAssociatedObject( *pt );
   }
  
-  vector< const DBCALUnifiedHit* > otherHits = clust.hits();
-
-  for( vector< const DBCALUnifiedHit* >::const_iterator ht = otherHits.begin();
-      ht != otherHits.end();
-      ++ht ){
-
-    m_hits.push_back( *ht ); 
-    AddAssociatedObject( *ht );
-  } 
-       
   makeFromPoints();
 }
 

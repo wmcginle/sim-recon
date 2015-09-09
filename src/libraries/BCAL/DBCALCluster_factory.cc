@@ -31,7 +31,7 @@ bool ClusterSort( const DBCALCluster* c1, const DBCALCluster* c2 ){
 DBCALCluster_factory::DBCALCluster_factory() : 
 m_mergeSig( 5 ), 
 m_moliereRadius( 3.7*k_cm ),
-m_clust_hit_timecut ( 30.0*k_nsec ),
+m_clust_hit_timecut ( 20.0*k_nsec ),
 m_timeCut( 8.0*k_nsec ){
 }
 
@@ -163,12 +163,10 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
   
 #endif // BCAL_CLUSTER_DIAGNOSTIC
   
-  
 
-  //  incorporate the single-ended hit energies into the cluster 
-  //  energy without the single ended hits contributing to the cluster centroid 
-  //  position or time.
+  // Want to add singled-ended hits to the Clusters. 
 
+  // Looking for hits that are single-ended.
 
   vector< const DBCALUnifiedHit* > hits;
   loop->Get(hits);
@@ -181,12 +179,6 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
     
     const DBCALUnifiedHit& hit = (**hitPtr);
     
-    // mcsmear will produce hits with energy zero if the hits do not
-    // exceed the threshold -- we want to suppress these hits so we know
-    // exactly how many "real" hits we have in a cell
-    
-    // if( hit.E < 0.1*k_MeV ) continue;  // shouldn't be a problem with new bcal mcsmearing
- 
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
     if( cellHitMap.find( id ) == cellHitMap.end() ){
@@ -194,7 +186,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
       cellHitMap[id] = vector< const DBCALUnifiedHit* >();
     }
     
-    cellHitMap[id].push_back( *hitPtr );
+    cellHitMap[id].push_back( *hitPtr );  
   }
   
   // now we should try to add on single-ended hits ... 
@@ -204,8 +196,7 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
       mapItr != cellHitMap.end();
       ++mapItr ){
     
-    if( mapItr->second.size() == 1 ){
-      
+    if( mapItr->second.size() == 1 ){      
       // only one hit in the cell
       
       const DBCALUnifiedHit* hit = mapItr->second[0];
@@ -529,7 +520,7 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   double d = ( (hit->end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was.
   
   double time_corr = ( (hit->end==0) ? hit->t - d/effective_velocities[channel_calib] : hit->t - d/effective_velocities[channel_calib] );  // hit time corrected to the interaction point in the bar.        
-  float time_diff = TMath::Abs(clust.t() - time_corr);
+  float time_diff = TMath::Abs(clust.t() - time_corr); // very loose cut on time between cluster and hit
   
   return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut );
 }

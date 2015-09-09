@@ -65,7 +65,6 @@ private:
   // a future stage; for now have this factory own and maintain them
   
   vector< DBCALPoint* > m_bcalPoints;
-  vector< DBCALUnifiedHit* > m_bcalHits;
     
 #ifdef BCAL_CLUSTER_DIAGNOSTIC
   
