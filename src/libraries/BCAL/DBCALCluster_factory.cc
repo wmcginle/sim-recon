@@ -298,11 +298,11 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points , vector< c
     // to existing clusters
     if( !usedPoint ) seedThresh /= 2;
   }
-    // look for hits that overlap with a cluster
+    // add the single-ended hits that overlap with a cluster that was made from points
   for( vector< const DBCALUnifiedHit* >::iterator ht = hits.begin();
       ht != hits.end();
       ++ht){
-      bool usedHit = false;	 
+    bool usedHit = false;	 
 
     for( vector<DBCALCluster*>::iterator clust = clusters.begin();
 	 clust != clusters.end();
@@ -326,9 +326,9 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points , vector< c
 	  (**clust).addHit( *ht, hit_E_unattenuated );
 	  usedHit = true;
       }
-	if( usedHit ) break;
+      if( usedHit ) break;
     }
-  }   // important to not add any points to the cluster after adding hits, because the cluster could then be reset and never have an opportunity to add hits again.
+  }
       
   return clusters;
 }
@@ -519,7 +519,7 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   float z = r / tan( clust.theta() );
   double d = ( (hit->end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was.
   
-  double time_corr = ( (hit->end==0) ? hit->t - d/effective_velocities[channel_calib] : hit->t - d/effective_velocities[channel_calib] );  // hit time corrected to the interaction point in the bar.        
+  double time_corr = hit->t - d/effective_velocities[channel_calib];  // hit time corrected to the interaction point in the bar.        
   float time_diff = TMath::Abs(clust.t() - time_corr); // very loose cut on time between cluster and hit
   
   return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut );

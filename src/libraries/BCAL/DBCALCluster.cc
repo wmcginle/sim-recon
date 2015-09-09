@@ -93,7 +93,7 @@ void
 DBCALCluster::makeFromPoints(){
   
   clear();
-
+  
   //In this function we take a weighted average of the phis/thetas/etc
   //of the individual DBCALPoint's to get the phi/theta/etc of the cluster. The
   //average of phi is weighted by the energy of the hit, while the other
@@ -119,6 +119,9 @@ DBCALCluster::makeFromPoints(){
   //of TDC readout so we don't gain much by including them.
   //3) Contamination by noise. (Noise is greatest in the 4th layer)
   //These outer layer hits will of course still contribute to the energy sum.
+
+  //Add single-ended hit energies to the cluster energy, but don't use the single-ended hits 
+  //to calculate the cluster centroid or time.
 
   //It can happen that a cluster is made up entirely of fourth layer hits.
   //In this case, we must use all hits in the average.
