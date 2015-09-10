@@ -175,9 +175,10 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
   for( vector< const DBCALUnifiedHit* >::const_iterator hitPtr = hits.begin();
       hitPtr != hits.end();
       ++hitPtr ){
-    
+
     const DBCALUnifiedHit& hit = (**hitPtr);
     
+    if( hit.E < 0.1*k_MeV ) continue;
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
     if( cellHitMap.find( id ) == cellHitMap.end() ){
