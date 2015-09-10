@@ -521,5 +521,6 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   double time_corr = hit->t - d/effective_velocities[channel_calib];  // hit time corrected to the interaction point in the bar.        
   float time_diff = TMath::Abs(clust.t() - time_corr); // very loose cut on time between cluster and hit
   
-  return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut );
+  return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut ); 
+
 }
