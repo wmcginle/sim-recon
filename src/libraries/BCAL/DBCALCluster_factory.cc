@@ -178,7 +178,6 @@ DBCALCluster_factory::evnt( JEventLoop *loop, int eventnumber ){
 
     const DBCALUnifiedHit& hit = (**hitPtr);
     
-    if( hit.E < 0.1*k_MeV ) continue;
     int id = DBCALGeometry::cellId( hit.module, hit.layer, hit.sector );
     
     if( cellHitMap.find( id ) == cellHitMap.end() ){
@@ -310,26 +309,25 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points , vector< c
 
       if( overlap( **clust, *ht ) ){
 
-          int cellId = DBCALGeometry::cellId( (**ht).module, (**ht).layer, (**ht).sector );
-          float r = DBCALGeometry::r( cellId );
-          int channel_calib = 16*((**ht).module-1)+4*((**ht).layer-1)+(**ht).sector-1; // need to use cellID for objects in DBCALGeometry but the CCDB uses a different channel numbering scheme, so use channel_calib when accessing CCDB tables.
+        int cellId = DBCALGeometry::cellId( (**ht).module, (**ht).layer, (**ht).sector );
+        float r = DBCALGeometry::r( cellId );
+        int channel_calib = 16*((**ht).module-1)+4*((**ht).layer-1)+(**ht).sector-1; // need to use cellID for objects in DBCALGeometry but the CCDB uses a different channel numbering scheme, so use channel_calib when accessing CCDB tables.
 
-          // given the location of the cluster, we need the best guess
-          // for z with respect to target at this radius
+        // given the location of the cluster, we need the best guess
+        // for z with respect to target at this radius
          
-          float z = r / tan( (**clust).theta() );
-          double d = ( ((**ht).end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was.
-          double lambda = attenuation_parameters[channel_calib][0];
-          double hit_E = (**ht).E;
-	  double hit_E_unattenuated = hit_E/exp(-d/lambda);  // hit energy unattenuated wrt the cluster z position
+        float z = r / tan( (**clust).theta() );
+        double d = ( ((**ht).end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
+        double lambda = attenuation_parameters[channel_calib][0];
+        double hit_E = (**ht).E;
+        double hit_E_unattenuated = hit_E/exp(-d/lambda);  // hit energy unattenuated wrt the cluster z position
 
-	  (**clust).addHit( *ht, hit_E_unattenuated );
-	  usedHit = true;
+        (**clust).addHit( *ht, hit_E_unattenuated );
+	usedHit = true;
       }
       if( usedHit ) break;
     }
-  }
-      
+  }     
   return clusters;
 }
 
@@ -517,10 +515,10 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   // for z with respect to target at this radius
           
   float z = r / tan( clust.theta() );
-  double d = ( (hit->end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was.
+  double d = ( (hit->end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
   
   double time_corr = hit->t - d/effective_velocities[channel_calib];  // hit time corrected to the interaction point in the bar.        
-  float time_diff = TMath::Abs(clust.t() - time_corr); // very loose cut on time between cluster and hit
+  float time_diff = TMath::Abs(clust.t() - time_corr); // time cut between cluster time and hit time - 20 ns is a very loose time cut.
   
   return( sigPhi < m_mergeSig && time_diff < m_clust_hit_timecut ); 
 

@@ -215,6 +215,8 @@ DBCALCluster::makeFromPoints(){
 
   // The method below for determining sig_theta works better than the one
   // above. parameters of sigma_z are determined using errors when reconstructing MC data.
+  // Using m_E_points because the cluster z position only depends on the point z positions
+  // and point energies.
   double sigma_z = sqrt(1.394*1.394/m_E_points + 0.859*0.859);
   m_sig_theta = sigma_z*sin(m_theta)*sin(m_theta)/DBCALGeometry::BCALINNERRAD;
   
