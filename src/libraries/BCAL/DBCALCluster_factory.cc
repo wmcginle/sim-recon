@@ -317,7 +317,7 @@ DBCALCluster_factory::clusterize( vector< const DBCALPoint* > points , vector< c
         // for z with respect to target at this radius
          
         float z = r / tan( (**clust).theta() );
-        double d = ( ((**ht).end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
+        double d = ( ((**ht).end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
         double lambda = attenuation_parameters[channel_calib][0];
         double hit_E = (**ht).E;
         double hit_E_unattenuated = hit_E/exp(-d/lambda);  // hit energy unattenuated wrt the cluster z position
@@ -508,15 +508,12 @@ DBCALCluster_factory::overlap( const DBCALCluster& clust,
   float sigPhi = deltaPhi / 
        sqrt( clust.sigPhi() * clust.sigPhi() + cellSigPhi  * cellSigPhi );
              
-  float r = DBCALGeometry::r( cellId );
   int channel_calib = 16*(hit->module-1)+4*(hit->layer-1)+hit->sector-1; // need to use cellID for objects in DBCALGeometry but the CCDB uses a different channel numbering scheme, so use channel_calib when accessing CCDB tables.
 
   // given the location of the cluster, we need the best guess
   // for z with respect to target at this radius
-          
-  float z = r / tan( clust.theta() );
-  double d = ( (hit->end == 0) ? (z + m_z_target_center - DBCALGeometry::GLOBAL_CENTER - DBCALGeometry::BCALFIBERLENGTH/2) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2 - z + m_z_target_center));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
-  
+  float z = clust.rho()*cos(clust.theta()) + m_z_target_center;        
+  double d = ( (hit->end == 0) ? (z - DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2.0) : (DBCALGeometry::GLOBAL_CENTER + DBCALGeometry::BCALFIBERLENGTH/2.0 - z));  // d gives the distance to upstream or downstream end of BCAL depending on where the hit was with respect to the cluster z position.
   double time_corr = hit->t - d/effective_velocities[channel_calib];  // hit time corrected to the interaction point in the bar.        
   float time_diff = TMath::Abs(clust.t() - time_corr); // time cut between cluster time and hit time - 20 ns is a very loose time cut.
   
